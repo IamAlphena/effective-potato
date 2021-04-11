@@ -3,7 +3,6 @@ const express = require('express');
 const exphbs = require('express-handlebars');
 const routes = require('./controllers');
 const helpers = require('./utils/helpers');
-
 const session = require('express-session');
 
 const sequelize = require('./config/connection');
@@ -14,7 +13,9 @@ const PORT = process.env.PORT || 3001;
 
 const hbs = exphbs.create({ helpers });
 
-
+const http = require('http');
+const server = http.createServer(app);
+const io = require('socket.io')(server);
 
 const sess = {
   secret: 'Super secret secret',
@@ -28,6 +29,12 @@ const sess = {
 
 app.use(session(sess));
 
+io.on('connection', (socket) => {
+  console.log('a user connected')
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+})
 
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
